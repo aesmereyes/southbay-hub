@@ -252,17 +252,11 @@ function BestBeach({ beaches, windMph }) {
   )
 }
 
-function ConditionsRow({ data, isNight }) {
+function ConditionsRow({ data }) {
   if (!data) return null
   const { cloudPct, uvIndex, tempF, waterTempF, tides } = data
   const uvC = uvIndex>=9?'#BC4B51':uvIndex>=6?'#E9A23B':'#3D5A40'
-  // Night time → always show "Night Time" regardless of clouds
-  const vis = isNight
-    ? 'Night Time'
-    : cloudPct<20 ? 'High Sun'
-    : cloudPct<60 ? 'Partly Cloudy'
-    : 'Overcast'
-  const visColor = isNight ? '#818cf8' : cloudPct<20 ? '#E9A23B' : undefined
+  const vis = cloudPct<20?'High Sun':cloudPct<60?'Partly Cloudy':'Overcast'
   return (
     <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:'10px', animation:'fadeUp 0.5s ease 0.2s both' }}>
       {[
@@ -270,7 +264,7 @@ function ConditionsRow({ data, isNight }) {
         { label:'Water Temp', value:waterTempF?waterTempF.toFixed(1):null, unit:'°F', color:'var(--pacific)', sub:'NOAA SM Pier' },
         { label:'UV Index', value:uvIndex?.toFixed(1), color:uvC },
         { label:'Cloud Cover', value:cloudPct!=null?Math.round(cloudPct):null, unit:'%' },
-        { label:'Visibility', value: isNight ? '🌙 Night Time' : vis, color: visColor },
+        { label:'Visibility', value:vis, color:cloudPct<20?'#E9A23B':undefined },
         { label:'Tides · Today', tides },
       ].map((t,i) => t.tides ? (
         <div key={i} style={{ background:'var(--card)', borderRadius:'14px', padding:'14px', boxShadow:'var(--sh-sm)', border:'1px solid var(--bsoft)' }}>
@@ -375,7 +369,7 @@ function HomePage({ data, loading }) {
       </div>
 
       {/* Conditions strip */}
-      <ConditionsRow data={data} isNight={isNight} />
+      <ConditionsRow data={data} />
 
       {/* Best beach */}
       <BestBeach beaches={data?.beaches} windMph={data?.windMph} />
