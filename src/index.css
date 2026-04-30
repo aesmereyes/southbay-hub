@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap');
+@import 'leaflet/dist/leaflet.css';
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --linen:    #F9F5EE;
+  --sand:     #F2EBD9;
+  --dune:     #DDD0B8;
+  --drift:    #C4AB88;
+  --bark:     #8B6F47;
+  --kelp:     #3D5A40;
+  --pacific:  #1F4E6B;
+  --pacific2: #2C7DA0;
+  --foam:     #8ECAE6;
+  --coral:    #BC4B51;
+  --gold:     #E9A23B;
+  --night:    #0D1B2A;
+  --night2:   #152638;
+
+  --text:     #1A1208;
+  --textm:    #4A3728;
+  --textd:    #8B7355;
+  --textl:    #B8A080;
+  --border:   rgba(139,111,71,0.15);
+  --bsoft:    rgba(139,111,71,0.08);
+  --card:     #FFFFFF;
+  --sh-sm: 0 1px 4px rgba(26,18,8,0.06), 0 2px 10px rgba(26,18,8,0.04);
+  --sh-md: 0 4px 20px rgba(26,18,8,0.09), 0 1px 6px rgba(26,18,8,0.05);
+  --sh-lg: 0 12px 48px rgba(26,18,8,0.12), 0 4px 16px rgba(26,18,8,0.06);
+
+  --ff-display: 'Fraunces', Georgia, serif;
+  --ff-body:    'DM Sans', sans-serif;
+  --ff-mono:    'DM Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--linen); color: var(--text); font-family: var(--ff-body); min-height: 100vh; overflow-x: hidden; font-size: 14px; }
+
+/* Leaflet */
+.leaflet-container { background: #c4d9e8 !important; font-family: var(--ff-body) !important; }
+.leaflet-control-attribution { background: rgba(249,245,238,0.92) !important; color: var(--textd) !important; font-size: 9px !important; }
+.leaflet-popup-content-wrapper { background: var(--card) !important; border: none !important; border-radius: 12px !important; box-shadow: var(--sh-lg) !important; }
+.leaflet-popup-tip { background: var(--card) !important; }
+.leaflet-popup-content { margin: 14px 18px !important; font-family: var(--ff-body); font-size: 13px; line-height: 1.6; }
+.leaflet-control-zoom a { background: var(--card) !important; color: var(--textm) !important; border-color: var(--border) !important; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px) } to { opacity:1; transform:translateY(0) } }
+@keyframes pulse  { 0%,100%{opacity:.35;transform:scale(.8)} 50%{opacity:1;transform:scale(1)} }
+@keyframes bob    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes spin   { to { transform:rotate(360deg) } }
