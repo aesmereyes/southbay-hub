@@ -1,0 +1,12 @@
+{
+  "fetched_at": "pending",
+  "stations": {
+    "46025": {"id":"46025","name":"Santa Monica Basin","role":"Offshore · Period + Direction","lat":33.755,"lon":-119.045,"depth":"890m","data":null,"ok":false},
+    "46221": {"id":"46221","name":"Santa Monica Bay","role":"Inner Confirm · Wave Height","lat":33.860,"lon":-118.641,"depth":"387m","data":null,"ok":false},
+    "46268": {"id":"46268","name":"Topanga Nearshore","role":"NW Early Warning","lat":34.022,"lon":-118.578,"depth":"~20m","data":null,"ok":false},
+    "ICAC1": {"id":"ICAC1","name":"Santa Monica Pier","role":"Wind & Tide Shore Station","lat":34.008,"lon":-118.500,"depth":"Shore","data":null,"ok":false},
+    "46222": {"id":"46222","name":"San Pedro","role":"South Swell Detector","lat":33.614,"lon":-118.314,"depth":"483m","data":null,"ok":false},
+    "46253": {"id":"46253","name":"San Pedro South","role":"Redondo Nearshore","lat":33.576,"lon":-118.181,"depth":"66m","data":null,"ok":false}
+  },
+  "errors": {}
+}
