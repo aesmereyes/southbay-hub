@@ -40,26 +40,16 @@ def get(url):
         return json.loads(r.read())
 
 def erddap(sid):
-    # Build URL using urllib.parse to ensure correct encoding
-    # ERDDAP cwwcNDBCMet dataset — NOAA's official API mirror of NDBC
-    base   = 'https://coastwatch.pfeg.noaa.gov/erddap/tabledap/cwwcNDBCMet.json'
-    fields = 'station,time,wd,wspd,wvht,dpd,mwd,atmp,wtmp'
-    # ERDDAP constraint syntax: &station="46025"&time>=...&orderByMax("time")
-    query  = (
-        f'{fields}'
-        f'&station="{sid}"'
-        f'&time>={start}'
-        f'&orderByMax("time")'
-    )
-    url = f'{base}?{urllib.parse.quote(query, safe="=&,.()\"><=!")}'
-    print(f'  URL: {url}')
-    data = get(url)
-    cols = data['table']['columnNames']
-    rows = data['table']['rows']
+    base  = 'https://coastwatch.pfeg.noaa.gov/erddap/tabledap/cwwcNDBCMet.json'
+    query = f'station,time,wd,wspd,wvht,dpd,mwd,atmp,wtmp&station="{sid}"&time>={start}&orderByMax("time")'
+    url   = f'{base}?{urllib.parse.quote(query, safe="=&,.()\">=<!*")}'
+    print(f'  {url[:100]}...')
+    data  = get(url)
+    cols  = data['table']['columnNames']
+    rows  = data['table']['rows']
     if not rows:
         return None
     row = dict(zip(cols, rows[-1]))
-
     def v(k):
         x = row.get(k)
         if x is None: return None
@@ -67,67 +57,49 @@ def erddap(sid):
             f = float(x)
             return None if f >= 99 else round(f, 3)
         except: return None
-
-    wvht, dpd, wspd, wtmp, atmp = v('wvht'), v('dpd'), v('wspd'), v('wtmp'), v('atmp')
+    wvht,dpd,wspd,wtmp,atmp = v('wvht'),v('dpd'),v('wspd'),v('wtmp'),v('atmp')
     return {
-        'wvht_ft':  round(wvht * 3.281, 1) if wvht is not None else None,
-        'wvht_m':   wvht,
-        'dpd_s':    dpd,
-        'mwd_deg':  v('mwd'),
-        'wspd_mph': round(wspd * 2.237, 1) if wspd is not None else None,
+        'wvht_ft':  round(wvht*3.281,1) if wvht is not None else None,
+        'wvht_m':   wvht, 'dpd_s': dpd, 'mwd_deg': v('mwd'),
+        'wspd_mph': round(wspd*2.237,1) if wspd is not None else None,
         'wdir_deg': v('wd'),
-        'wtmp_f':   round(wtmp * 9/5 + 32, 1) if wtmp is not None else None,
-        'atmp_f':   round(atmp * 9/5 + 32, 1) if atmp is not None else None,
+        'wtmp_f':   round(wtmp*9/5+32,1) if wtmp is not None else None,
+        'atmp_f':   round(atmp*9/5+32,1) if atmp is not None else None,
         'timestamp': row.get('time','?'),
     }
 
-# Sunrise / sunset from Open-Meteo
 sunrise = sunset = None
 try:
-    wx = get(
-        'https://api.open-meteo.com/v1/forecast'
-        '?latitude=33.88&longitude=-118.41'
-        '&daily=sunrise,sunset'
-        '&timezone=America%2FLos_Angeles&forecast_days=1'
-    )
+    wx = get('https://api.open-meteo.com/v1/forecast?latitude=33.88&longitude=-118.41&daily=sunrise,sunset&timezone=America%2FLos_Angeles&forecast_days=1')
     sunrise = wx['daily']['sunrise'][0]
     sunset  = wx['daily']['sunset'][0]
-    print(f'Sun: rise={sunrise}  set={sunset}')
+    print(f'Sun: {sunrise} / {sunset}')
 except Exception as e:
-    print(f'Sun fetch failed: {e}')
+    print(f'Sun failed: {e}')
 
-result = {
-    'fetched_at': now.isoformat(),
-    'sunrise': sunrise,
-    'sunset':  sunset,
-    'stations': {},
-    'errors':   {}
-}
+result = {'fetched_at':now.isoformat(),'sunrise':sunrise,'sunset':sunset,'stations':{},'errors':{}}
 
 for st in STATIONS:
     sid = st['id']
     print(f'\nFetching {sid}...')
     try:
         d = erddap(sid)
-        result['stations'][sid] = {**st, 'data': d, 'ok': d is not None}
-        print(f'  -> wvht={d.get("wvht_ft")}ft  dpd={d.get("dpd_s")}s  ts={d.get("timestamp")}' if d else '  -> no data')
+        result['stations'][sid] = {**st,'data':d,'ok':d is not None}
+        print(f'  OK: wvht={d.get("wvht_ft") if d else None}ft dpd={d.get("dpd_s") if d else None}s')
     except Exception as e:
-        result['stations'][sid] = {**st, 'data': None, 'ok': False}
+        result['stations'][sid] = {**st,'data':None,'ok':False}
         result['errors'][sid] = str(e)
-        print(f'  -> ERROR: {e}')
+        print(f'  ERROR: {e}')
 
 os.makedirs('src/data', exist_ok=True)
-with open('src/data/buoy-data.json', 'w') as f:
+with open('src/data/buoy-data.json','w') as f:
     json.dump(result, f, indent=2)
 
 live = sum(1 for s in result['stations'].values() if s.get('ok'))
 print(f'\n=== {live}/{len(STATIONS)} stations live ===')
 PYEOF
 
-      - name: Install deps and build
-        run: npm ci && npm run build
-
-      - name: Commit data + rebuilt dist
+      - name: Commit buoy data only
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
